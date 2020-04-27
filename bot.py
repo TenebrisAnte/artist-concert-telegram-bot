@@ -17,3 +17,6 @@ def repeat_all_messages(message):
 
 if __name__ == '__main__':
      bot.infinity_polling()
+
+
+    # переклад тексту з англійської на українську
