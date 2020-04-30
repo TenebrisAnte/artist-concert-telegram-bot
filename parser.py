@@ -1,10 +1,13 @@
 import requests
 from bs4 import BeautifulSoup
 
+
 def get_html(url):
     r = requests.get(url)
     return r.text
 
+"""Ищет артистов по запросу упаковывает в словарь с ключем имя артиста. Возможно несколько артистов.
+Вход: принимает реквест ссылку с поиска (https://www.songkick.com/search?utf8=%E2%9C%93&type=initial&query=)"""
 def searth_artist(html):
     artists_dict = {}
     soup = BeautifulSoup(html, "lxml")
@@ -17,12 +20,31 @@ def searth_artist(html):
         artists_dict[name] = [link, pic]
     return artists_dict
 
-def search_concert(url):
+
+# Селектор для выбора одного артиста из словаря
+def select_artist():
+    pass
+
+
+"""Парсер для страници артиста
+Вход: ссылка на странику артиста и код артиста на сайте"""
+def concert(html, artist_link):
+    soup = BeautifulSoup(html, "lxml")
+    div_inf = soup.find('div', class_ =("col-8 primary artist-overview"))
+    tour_inf = div_inf.find('ul').find('li').text.replace("On tour: ", '')
+    if tour_inf == "yes":
+        r = requests.get(f"https://www.songkick.com/artists/{artist_link}/calendar")
+        comp_event = soup.find_all("ol", class_="artist-event-listings")
+        #upcoming_conc = comp_event
+        return comp_event
 
 
 def main():
-    url = "https://www.songkick.com/search?utf8=%E2%9C%93&query=alison"
-    por = searth_artist(get_html(url))
-    #print(por)
+    artist_link = "267261-bi2"
+    url = "https://www.songkick.com/artists/" + artist_link
+    por =concert(get_html(url), artist_link)
+    print(por)
+
+
 if __name__=="__main__":
     main()
