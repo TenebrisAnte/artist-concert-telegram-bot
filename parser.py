@@ -9,10 +9,10 @@ def get_html(url):
 
 """
 Ищет артистов по запросу упаковывает в словарь с ключем имя артиста. Возможно несколько артистов.
-вход имя
+вход имя (если несколько слов то зменяет " " на "+"
 выход { имя артиста [код артиста, ссылка на картинку артиста ]
 """
-def searth_artist(name_artist):
+def search_artist(name_artist):
     artists_dict = {}
     url = "https://www.songkick.com/search?utf8=%E2%9C%93&type=initial&query=" + name_artist
     soup = get_html(url)
@@ -31,7 +31,7 @@ def searth_artist(name_artist):
 """
 Парсер для страници артиста
 Вход: код артиста полученный от бота 
-Выход:количество концертов, {сылка на концерт[дата, концертхолл, (город_страна(может принимать значение "Canceled")}
+Выход:количество концертов,{сылка на концерт[дата, концертхолл, город_страна(может принимать значение "Canceled" и "POSTPONED")}
 """
 def concert(artist_code):
     concert = {}
@@ -53,10 +53,29 @@ def concert(artist_code):
         return upcoming_conc, concert
 
 """
+получить ссылку на покупку билета 
+"""
+
+def get_ticket(link_concert):
+    url = "https://www.songkick.com/" + link_concert
+    soup = get_html(url)
+    try:
+        ticket_link = soup.find('div', id="tickets").find("a", class_="buy-ticket-link").get("href")
+        ticket_vendor = "https://www.songkick.com" + ticket_link
+        return ticket_vendor
+    except:
+        data_search = soup.find("div", class_ ="date-and-name").text.replace("\n", "").replace(" ", "+")
+        name_search = soup.find("h1", class_="h0 summary").text.replace("\n", "").replace(" ", "+")
+        location_search = soup.find("div", class_="location").text.replace("\n", "").replace(" ", "+").replace(" ", "+")
+        google_link =f"https://www.google.com/search?q={data_search}++{name_search}++{location_search}"
+        return google_link
+
+
+"""
 Поиск 50 приведущих концертов 
 Вход: код артиста полученный от бота 
 выход словарь {дата[место проведения, страна ]}
----работает не всегдаб, еще допиливаю---
+---работает не всегда, еще допиливаю---
 """
 
 def past_concert(artist_code):
@@ -75,20 +94,24 @@ def past_concert(artist_code):
                 conc_place = concert.find("span", class_="venue-name").find("a").text
             except AttributeError:
                 conc_place = None
-            conc_city = concert.find("p", "location").find("span", class_=None)
-            print(conc_city)
-            past_concert[conc_date] = [conc_place, conc_city]
+            #conc_city = concert.find("p", "location").find("span", class_=None).text
+            past_concert[conc_date] = [conc_place]
     print(past_concert)
     return past_concert
 
 
 
 
+def search_location(location):
+    pass
+
+
+
+
+
 def main():
-    artist_code = "96404-linkin-park"
-    past_concert(artist_code)
-
-
+    artist_code = "4555533-altj"
+    print(get_ticket("/concerts/39277247-bi2-at-minsk-arena"))
 
 if __name__=="__main__":
     main()
