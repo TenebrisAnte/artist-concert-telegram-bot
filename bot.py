@@ -38,17 +38,20 @@ def get_name(message):
     markup = telebot.types.InlineKeyboardMarkup()
     n=1
     for i in name:
-        markup.add(telebot.types.InlineKeyboardButton(text=i, callback_data=n))
+        markup.add(telebot.types.InlineKeyboardButton(text=i, callback_data=i))
         n+=1
-    if name == {}:  bot.send_message(message.chat.id, text="Такого виконавця немає, спробуйте ще раз")
-    else: bot.send_message(message.chat.id, text="Вибери артиста", reply_markup=markup)
+    if name == {}:
+        bot.send_message(message.chat.id, text="Такого виконавця немає, спробуйте ще раз")
+    else:
+        bot.send_message(message.chat.id, text="Вибери артиста", reply_markup=markup)
+        print(name)
 
 
 @bot.callback_query_handler(func=lambda call: True)
 def query_handler(call):
     bot.answer_callback_query(callback_query_id=call.id, text='Дякую!')
-    ans = '*концерти*'
-
+    print(call)
+    ans = call.data
     bot.send_message(call.message.chat.id, ans)
 
 
